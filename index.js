@@ -23,7 +23,27 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
+    const marathonsCollection = client.db('marathonManagementDB').collection('marathons')
 
+      //marathons 
+      app.get('/marathons', async(req,res)=>{
+        const cursor = marathonsCollection.find();
+        const result = await cursor.toArray();
+        res.send(result);
+      })
+      app.get('/marathon', async(req,res)=>{
+        const cursor = marathonsCollection.find().limit(6);
+        const result = await cursor.toArray();
+        res.send(result);
+      })
+
+      //post API marathon data
+      app.post('/marathon', async(req, res)=>{
+        const newMarathon = req.body;
+        console.log(newMarathon)
+        const result = await marathonsCollection.insertOne(newMarathon)
+        res.send(result)
+      })
 
 
 
