@@ -54,6 +54,14 @@ async function run() {
         res.send(result)
       })
 
+      app.get('/my-apply/:email', async(req, res)=>{
+        const email = req.params.email;
+        const query = {email: email}
+        const cursor = registrationCollection.find(query);
+        const result = await cursor.toArray();
+        res.send(result)
+      })
+
       //post API marathon data
       app.post('/marathon', async(req, res)=>{
         const newMarathon = req.body;
@@ -68,6 +76,7 @@ async function run() {
         const result = await registrationCollection.insertOne(newRegistration)
         res.send(result)
       })
+
       //delete
       app.delete('/marathon/:id', async(req, res)=>{
         const id = req.params.id;
