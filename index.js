@@ -25,6 +25,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     const marathonsCollection = client.db('marathonManagementDB').collection('marathons')
+    const registrationCollection = client.db('marathonManagementDB').collection('registration')
 
       //marathons 
       app.get('/marathons', async(req,res)=>{
@@ -50,6 +51,13 @@ async function run() {
         const newMarathon = req.body;
         console.log(newMarathon)
         const result = await marathonsCollection.insertOne(newMarathon)
+        res.send(result)
+      })
+
+      app.post('/registrations', async(req, res)=>{
+        const newRegistration = req.body;
+        console.log(newRegistration)
+        const result = await registrationCollection.insertOne(newRegistration) 
         res.send(result)
       })
 
