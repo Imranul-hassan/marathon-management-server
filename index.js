@@ -46,6 +46,14 @@ async function run() {
         res.send(result)
       })
 
+      app.get('/my-marathon/:email', async(req, res)=>{
+        const email = req.params.email;
+        const query = {email: email}
+        const cursor = marathonsCollection.find(query);
+        const result = await cursor.toArray();
+        res.send(result)
+      })
+
       //post API marathon data
       app.post('/marathon', async(req, res)=>{
         const newMarathon = req.body;
@@ -57,10 +65,16 @@ async function run() {
       app.post('/registrations', async(req, res)=>{
         const newRegistration = req.body;
         console.log(newRegistration)
-        const result = await registrationCollection.insertOne(newRegistration) 
+        const result = await registrationCollection.insertOne(newRegistration)
         res.send(result)
       })
-
+      //delete
+      app.delete('/marathon/:id', async(req, res)=>{
+        const id = req.params.id;
+        const query = {_id: new ObjectId(id)}
+        const result = await marathonsCollection.deleteOne(query);
+        res.send(result)
+      })
 
 
     // Send a ping to confirm a successful connection
