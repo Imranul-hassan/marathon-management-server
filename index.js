@@ -1,4 +1,5 @@
 require('dotenv').config()
+const ObjectId = require('mongodb').ObjectId;
 const express = require('express')
 const cors = require('cors')
 const app = express();
@@ -35,6 +36,13 @@ async function run() {
         const cursor = marathonsCollection.find().limit(6);
         const result = await cursor.toArray();
         res.send(result);
+      })
+
+      app.get('/marathon/:id', async(req, res)=>{
+        const id = req.params.id;
+        const query = {_id: new ObjectId(id)}
+        const result = await marathonsCollection.findOne(query);
+        res.send(result)
       })
 
       //post API marathon data
