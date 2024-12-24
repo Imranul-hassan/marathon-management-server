@@ -46,6 +46,13 @@ async function run() {
         res.send(result)
       })
 
+      app.get('/registration/:id', async(req, res)=>{
+        const id = req.params.id;
+        const query = {_id: new ObjectId(id)}
+        const result = await marathonsCollection.findOne(query);
+        res.send(result)
+      })
+
       app.get('/my-marathon/:email', async(req, res)=>{
         const email = req.params.email;
         const query = {email: email}
@@ -65,6 +72,12 @@ async function run() {
         const query = {email: email}
         const cursor = registrationCollection.find(query);
         const result = await cursor.toArray();
+        res.send(result)
+      })
+      app.get('/my-apply/:email/update-apply/:id', async(req, res)=>{
+        const id = req.params.id;
+        const query = {_id: new ObjectId(id)}
+        const result = await registrationCollection.findOne(query)
         res.send(result)
       })
 
