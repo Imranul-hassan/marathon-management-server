@@ -53,6 +53,12 @@ async function run() {
         const result = await cursor.toArray();
         res.send(result)
       })
+      app.get('/my-marathon/:email/update-marathon/:id', async(req, res)=>{
+        const id = req.params.id;
+        const query = {_id: new ObjectId(id)}
+        const result = await marathonsCollection.findOne(query)
+        res.send(result)
+      })
 
       app.get('/my-apply/:email', async(req, res)=>{
         const email = req.params.email;
@@ -85,10 +91,31 @@ async function run() {
         res.send(result)
       })
 
-      app.delete('/registration/:id', async(req, res)=>{
+      app.delete('/apply/:id', async(req, res)=>{
         const id = req.params.id;
         const query = {_id: new ObjectId(id)}
         const result = await registrationCollection.deleteOne(query);
+        res.send(result)
+      })
+
+      app.put('/marathon/:id', async(req, res)=>{
+        const id = req.params.id;
+        const filter = {_id: new ObjectId(id)}
+        const options = { upsert: true};
+        const updatedMarathon = req.body;
+        const marathon = {
+          $set: { 
+            campaign_title: updatedMarathon.campaign_title, 
+            photo: updatedMarathon.photo,
+            start_registration_date: updatedMarathon.start_registration_date, 
+            end_registration_date: updatedMarathon.end_registration_date, 
+            marathon_start_date: updatedMarathon.marathon_start_date, 
+            location: updatedMarathon.location,
+            running_distance: updatedMarathon.running_distance,
+            description: updatedMarathon.description
+          }
+        }
+        const result = await marathonsCollection.updateOne(filter, marathon, options )
         res.send(result)
       })
 
