@@ -60,6 +60,7 @@ async function run() {
         const result = await cursor.toArray();
         res.send(result)
       })
+
       app.get('/my-marathon/:email/update-marathon/:id', async(req, res)=>{
         const id = req.params.id;
         const query = {_id: new ObjectId(id)}
@@ -118,7 +119,7 @@ async function run() {
         const updatedMarathon = req.body;
         const marathon = {
           $set: { 
-            campaign_title: updatedMarathon.campaign_title, 
+            marathon_title: updatedMarathon.marathon_title, 
             photo: updatedMarathon.photo,
             start_registration_date: updatedMarathon.start_registration_date, 
             end_registration_date: updatedMarathon.end_registration_date, 
