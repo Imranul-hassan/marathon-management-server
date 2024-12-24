@@ -133,6 +133,25 @@ async function run() {
         res.send(result)
       })
 
+      app.put('/registration/:id', async(req, res)=>{
+        const id = req.params.id;
+        const filter = {_id: new ObjectId(id)}
+        const options = { upsert: true};
+        const updateRegistration = req.body;
+        const apply = {
+          $set: { 
+            marathonTitle: updateRegistration.marathonTitle, 
+            marathonStartDate: updateRegistration.marathonStartDate, 
+            firstName: updateRegistration.firstName,
+            lastName: updateRegistration.lastName,
+            contactNumber: updateRegistration.contactNumber,
+            additionalInfo:updateRegistration.additionalInfo
+          }
+        }
+        const result = await registrationCollection.updateOne(filter, apply, options )
+        res.send(result)
+      })
+
 
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
