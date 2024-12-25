@@ -29,7 +29,12 @@ async function run() {
 
       //marathons 
       app.get('/marathons', async(req,res)=>{
-        const cursor = marathonsCollection.find();
+        const { sort } = req.query;
+        let sortOrder = { createdAt: -1 };
+        if (sort === 'asc') {
+          sortOrder = { createdAt: 1 }; 
+        }
+        const cursor = marathonsCollection.find().sort(sortOrder);
         const result = await cursor.toArray();
         res.send(result);
       })
@@ -94,6 +99,12 @@ async function run() {
         const newRegistration = req.body;
         console.log(newRegistration)
         const result = await registrationCollection.insertOne(newRegistration)
+
+        const filter = { _id: new ObjectId(newRegistration.marathonId)}
+        const update ={
+          $inc: {total_registration_count: 1}
+        }
+        const updateCount = await marathonsCollection.updateOne(filter, update)
         res.send(result)
       })
 
