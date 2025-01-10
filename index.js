@@ -9,21 +9,24 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
 const port = process.env.PORT || 5000;
 
 app.use(cors({
-  origin: ['http://localhost:5173'],
+  origin: [
+    'http://localhost:5173',
+    'https://marathon-management-system.netlify.app',
+  ],
   credentials: true
 }))
 app.use(express.json())
 app.use(cookieParser())
 
-const verifyToken = (req, res, next)=>{
+const verifyToken = (req, res, next) => {
   const token = req.cookies?.token;
   console.log('token inside', token)
-  if(!token){
-    return res.status(401).send({message: 'Unauthorized access'})
+  if (!token) {
+    return res.status(401).send({ message: 'Unauthorized access' })
   }
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRETE, (err, decoded)=>{
-    if(err){
-      return res.status(401).send({message: 'Unauthorized access'})
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRETE, (err, decoded) => {
+    if (err) {
+      return res.status(401).send({ message: 'Unauthorized access' })
     }
     req.user = decoded;
     next()
@@ -54,7 +57,8 @@ async function run() {
       res
         .cookie('token', token, {
           httpOnly: true,
-          secure: false
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
         })
         .send({ success: true })
     })
@@ -63,7 +67,8 @@ async function run() {
       res
         .clearCookie('token', {
           httpOnly: true,
-          secure: false
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
         })
         .send({ success: true })
     })
@@ -81,7 +86,7 @@ async function run() {
     })
 
     app.get('/marathon', async (req, res) => {
-      const cursor = marathonsCollection.find().limit(6);
+      const cursor = marathonsCollection.find().limit(4);
       const result = await cursor.toArray();
       res.send(result);
     })
@@ -100,10 +105,10 @@ async function run() {
       res.send(result)
     })
 
-    app.get('/my-marathon/:email', verifyToken,  async (req, res) => {
+    app.get('/my-marathon/:email', verifyToken, async (req, res) => {
       const email = req.params.email;
       const query = { email: email }
-      if(req.user.email !== req.params.email){
+      if (req.user.email !== req.params.email) {
         return res.status(403)
       }
       const cursor = marathonsCollection.find(query);
@@ -118,29 +123,32 @@ async function run() {
       res.send(result)
     })
 
-    app.get('/my-apply/:email', async (req, res) => {
+    app.get('/my-apply/:email', verifyToken, async (req, res) => {
       const email = req.params.email;
       const query = { email: email }
+      if (req.user.email !== req.params.email) {
+        return res.status(403)
+      }
       const cursor = registrationCollection.find(query);
       const result = await cursor.toArray();
       res.send(result)
     })
 
-    app.get('/my-apply/:email', async (req, res) => {
-      const email = req.params.email;
-      const search = req.query.search || '';
-      console.log(search)
-      const query = {
-        email,
-        $or: [
-          { marathonTitle: { $regex: search, $options: 'i' } },
-          { location: { $regex: search, $options: 'i' } },
-        ],
-      };
-      const cursor = registrationCollection.find(query);
-      const result = await cursor.toArray();
-      res.send(result)
-    })
+    // app.get('/my-apply/:email', async (req, res) => {
+    //   const email = req.params.email;
+    //   const search = req.query.search || '';
+    //   console.log(search)
+    //   const query = {
+    //     email,
+    //     $or: [
+    //       { marathonTitle: { $regex: search, $options: 'i' } },
+    //       { location: { $regex: search, $options: 'i' } },
+    //     ],
+    //   };
+    //   const cursor = registrationCollection.find(query);
+    //   const result = await cursor.toArray();
+    //   res.send(result)
+    // })
 
     app.get('/my-apply/:email/update-apply/:id', async (req, res) => {
       const id = req.params.id;
